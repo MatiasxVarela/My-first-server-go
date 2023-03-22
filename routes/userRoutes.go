@@ -1,15 +1,26 @@
 package routes
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"myFirstServerWithGo/service"
+
+	"github.com/gofiber/fiber/v2"
+)
 
 func UserRoutes(users fiber.Router) {
 
-	users.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Get all users")
-	})
+	/* Post user */
+	users.Post("/", service.CreateUser)
 
-	users.Get("/:id", func(c *fiber.Ctx) error {
-		return c.SendString("Get user by id")
-	})
+	/* Get all users */
+	users.Get("/", service.FindUser)
+
+	/* Get user by id */
+	users.Get("/:id", service.FindOneUser)
+
+	/* Delete user */
+	users.Delete("/:id", service.DeleteUser)
+
+	/* Update user */
+	users.Patch("/:id", service.UpdateUser)
 
 }

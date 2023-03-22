@@ -12,12 +12,18 @@ type TaskBody struct {
 
 func TasksRoutes(tasks fiber.Router) {
 
-	/* Get all tasks */
-	tasks.Get("/", service.Find)
-
 	/* Post tasks */
-	tasks.Post("/", service.Create)
+	tasks.Post("/", service.CreateTask)
 
-	/* Get tasks by id */
-	tasks.Get("/:id", service.FindOne)
+	/* Get all tasks */
+	tasks.Get("/", service.FindTask)
+
+	/* Get task by id */
+	tasks.Get("/:id", service.FindOneTask)
+
+	/* Delete task */
+	tasks.Delete("/:id", service.DeleteTask)
+
+	/* Update */
+	tasks.Patch("/:id", service.UpdateTask)
 }
