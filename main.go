@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	db.OpenDb()
+	db.OpenDb(true)
 	server := app.CreateApp()
 
 	server.Listen(":3000")
