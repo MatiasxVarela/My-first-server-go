@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func OpenDb(force bool) {
+func OpenDb(force bool) *sql.DB {
 	connStr := "user=postgres password=admin dbname=golang_tutorial sslmode=disable"
 
 	db, err := sql.Open("postgres", connStr)
@@ -16,8 +16,7 @@ func OpenDb(force bool) {
 	resetDb(db, force)
 	initTables(db)
 
-	defer db.Close()
-
+	return db
 }
 
 func resetDb(db *sql.DB, force bool) {

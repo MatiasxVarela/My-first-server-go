@@ -8,8 +8,9 @@ import (
 )
 
 func main() {
-	db.OpenDb(true)
-	server := app.CreateApp()
+	db := db.OpenDb(true)
+	server := app.CreateApp(db)
 
 	server.Listen(":3000")
+	defer db.Close()
 }
