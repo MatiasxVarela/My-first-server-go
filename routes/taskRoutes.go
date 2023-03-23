@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"database/sql"
 	"myFirstServerWithGo/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,7 +11,7 @@ type TaskBody struct {
 	Name string `json:"name"`
 }
 
-func TasksRoutes(tasks fiber.Router) {
+func TasksRoutes(tasks fiber.Router, db *sql.DB) {
 
 	/* Post tasks */
 	tasks.Post("/", service.CreateTask)

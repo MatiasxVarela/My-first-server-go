@@ -10,12 +10,7 @@ import (
 func CreateApp(db *sql.DB) *fiber.App {
 	app := fiber.New()
 
-	app.Use(func(c *fiber.Ctx) error {
-		c.Locals("db", db)
-		return c.Next()
-	})
-
-	routes.MainRoute(app)
+	routes.MainRoute(app, db)
 
 	return app
 }

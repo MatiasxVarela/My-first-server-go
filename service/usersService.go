@@ -11,23 +11,23 @@ type User struct {
 }
 
 /* Create new user */
-func CreateUser(c *fiber.Ctx) error {
-	db := c.Locals("db").(*sql.DB)
+func CreateUser(db *sql.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		user := new(User)
+		if err := c.BodyParser(user); err != nil {
+			return err
+		}
 
-	user := new(User)
-	if err := c.BodyParser(user); err != nil {
-		return err
+		query := "INSERT INTO usuarios (nombre) VALUES ($1)"
+		_, err := db.Exec(query, user.Name)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(fiber.Map{
+			"message": "Created User",
+		})
 	}
-
-	query := "INSERT INTO usuarios (nombre) VALUES ($1)"
-	_, err := db.Exec(query, user.Name)
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(fiber.Map{
-		"message": "Created User",
-	})
 }
 
 /* Find all users */
