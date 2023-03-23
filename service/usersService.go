@@ -2,24 +2,22 @@ package service
 
 import (
 	"database/sql"
+	"myFirstServerWithGo/models"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type User struct {
-	Name string `json:"name"`
-}
-
 /* Create new user */
 func CreateUser(db *sql.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		user := new(User)
+		user := new(models.Users)
 		if err := c.BodyParser(user); err != nil {
 			return err
 		}
 
-		query := "INSERT INTO usuarios (nombre) VALUES ($1)"
-		_, err := db.Exec(query, user.Name)
+		query := "INSERT INTO users (firstname, lastname) VALUES ($1, $2)"
+		_, err := db.Exec(query, user.FirstName, user.LastName)
 		if err != nil {
 			return err
 		}
@@ -31,13 +29,70 @@ func CreateUser(db *sql.DB) fiber.Handler {
 }
 
 /* Find all users */
-func FindUser(c *fiber.Ctx) error {
-	return c.JSON("Find all users")
+func FindAllUsers(db *sql.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var users []models.Users
+
+		query := "SElECT * FROM users"
+
+		rows, err := db.Query(query)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var responseUsers models.Users
+			if err := rows.Scan(&responseUsers.Id, &responseUsers.FirstName, &responseUsers.LastName); err != nil {
+				return err
+			}
+			users = append(users, responseUsers)
+		}
+
+		if err := rows.Err(); err != nil {
+			return err
+		}
+
+		if users != nil {
+			return c.JSON(users)
+		} else {
+			return c.Status(404).JSON(fiber.Map{
+				"message": "Users not found",
+			})
+		}
+	}
 }
 
 /* Find user by id */
-func FindOneUser(c *fiber.Ctx) error {
-	return c.JSON("Find one user")
+func FindOneUser(db *sql.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		id := c.Params("id")
+		idInt, _ := strconv.Atoi(id)
+		var users []models.Users
+
+		query := "SElECT * FROM users WHERE id=$1"
+		rows, err := db.Query(query, idInt)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var responseUsers models.Users
+			if err := rows.Scan(&responseUsers.Id, &responseUsers.FirstName, &responseUsers.LastName); err != nil {
+				return err
+			}
+			users = append(users, responseUsers)
+		}
+
+		if users != nil {
+			return c.JSON(users)
+		} else {
+			return c.Status(404).JSON(fiber.Map{
+				"message": "User not found",
+			})
+		}
+	}
 }
 
 /* Update user */
@@ -46,6 +101,34 @@ func UpdateUser(c *fiber.Ctx) error {
 }
 
 /* Delete user */
-func DeleteUser(c *fiber.Ctx) error {
-	return c.JSON("Delete user")
+func DeleteUser(db *sql.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		id := c.Params("id")
+		idInt, _ := strconv.Atoi(id)
+
+		query := "DELETE FROM users WHERE id=$1"
+		row, err := db.Exec(query, idInt)
+		if err != nil {
+			return err
+		}
+
+		affectedRows, _ := row.RowsAffected()
+
+		if affectedRows > 0 {
+			return c.JSON(fiber.Map{
+				"message": "User Deleted",
+			})
+		} else {
+			return c.Status(404).JSON(fiber.Map{
+				"message": "User not found",
+			})
+		}
+
+	}
 }
+
+/* (db *sql.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return c.JSON("")
+	}
+} */

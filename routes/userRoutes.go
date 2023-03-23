@@ -13,13 +13,13 @@ func UserRoutes(users fiber.Router, db *sql.DB) {
 	users.Post("/", service.CreateUser(db))
 
 	/* Get all users */
-	users.Get("/", service.FindUser)
+	users.Get("/", service.FindAllUsers(db))
 
 	/* Get user by id */
-	users.Get("/:id", service.FindOneUser)
+	users.Get("/:id", service.FindOneUser(db))
 
 	/* Delete user */
-	users.Delete("/:id", service.DeleteUser)
+	users.Delete("/:id", service.DeleteUser(db))
 
 	/* Update user */
 	users.Patch("/:id", service.UpdateUser)
