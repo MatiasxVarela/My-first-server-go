@@ -14,21 +14,20 @@ type User struct {
 func CreateUser(c *fiber.Ctx) error {
 	db := c.Locals("db").(*sql.DB)
 
-	var user User
-	err := c.BodyParser(&user)
-	if err != nil {
+	user := new(User)
+	if err := c.BodyParser(user); err != nil {
+		return err
 	}
 
-	// Query para insertar un usuario
 	query := "INSERT INTO usuarios (nombre) VALUES ($1)"
-
-	// Ejecutar la consulta con el nombre del usuario como parámetro
-	_, err = db.Exec(query, user.Name)
+	_, err := db.Exec(query, user.Name)
 	if err != nil {
 		return err
 	}
 
-	return c.SendString("Usuario creado exitosamente")
+	return c.JSON(fiber.Map{
+		"message": "Created User",
+	})
 }
 
 /* Find all users */
