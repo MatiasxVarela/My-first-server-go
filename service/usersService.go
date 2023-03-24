@@ -8,6 +8,29 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+/* Utils */
+
+func findDbUser(db *sql.DB, idInt int) ([]models.Users, error) {
+	var users []models.Users
+
+	query := "SElECT * FROM users WHERE id=$1"
+	rows, err := db.Query(query, idInt)
+	if err != nil {
+		return users, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var responseUsers models.Users
+		if err := rows.Scan(&responseUsers.Id, &responseUsers.FirstName, &responseUsers.LastName); err != nil {
+			return users, err
+		}
+		users = append(users, responseUsers)
+	}
+
+	return users, nil
+}
+
 /* Create new user */
 func CreateUser(db *sql.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
@@ -68,25 +91,14 @@ func FindOneUser(db *sql.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
 		idInt, _ := strconv.Atoi(id)
-		var users []models.Users
 
-		query := "SElECT * FROM users WHERE id=$1"
-		rows, err := db.Query(query, idInt)
+		users, err := findDbUser(db, idInt)
 		if err != nil {
 			return err
 		}
-		defer rows.Close()
-
-		for rows.Next() {
-			var responseUsers models.Users
-			if err := rows.Scan(&responseUsers.Id, &responseUsers.FirstName, &responseUsers.LastName); err != nil {
-				return err
-			}
-			users = append(users, responseUsers)
-		}
 
 		if users != nil {
-			return c.JSON(users)
+			return c.JSON(users[0])
 		} else {
 			return c.Status(404).JSON(fiber.Map{
 				"message": "User not found",
@@ -96,8 +108,37 @@ func FindOneUser(db *sql.DB) fiber.Handler {
 }
 
 /* Update user */
-func UpdateUser(c *fiber.Ctx) error {
-	return c.JSON("Update user")
+func UpdateUser(db *sql.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		id := c.Params("id")
+		idInt, _ := strconv.Atoi(id)
+
+		users, err := findDbUser(db, idInt)
+		if err != nil {
+			return err
+		}
+
+		if len(users) < 1 {
+			return c.Status(404).JSON(fiber.Map{
+				"message": "User not found",
+			})
+		}
+
+		var usersReq models.Users
+		if err := c.BodyParser(&usersReq); err != nil {
+			return err
+		}
+
+		if usersReq.FirstName != "" {
+			users[0].FirstName = usersReq.FirstName
+		}
+		if usersReq.LastName != "" {
+			users[0].LastName = usersReq.LastName
+		}
+
+		return c.JSON(users)
+
+	}
 }
 
 /* Delete user */

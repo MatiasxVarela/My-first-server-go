@@ -22,6 +22,6 @@ func UserRoutes(users fiber.Router, db *sql.DB) {
 	users.Delete("/:id", service.DeleteUser(db))
 
 	/* Update user */
-	users.Patch("/:id", service.UpdateUser)
+	users.Patch("/:id", service.UpdateUser(db))
 
 }
