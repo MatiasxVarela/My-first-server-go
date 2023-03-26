@@ -1,30 +1,48 @@
 package service
 
 import (
+	"database/sql"
+
 	"github.com/gofiber/fiber/v2"
 )
 
 /* Create new task */
-func CreateTask(c *fiber.Ctx) error {
-	return c.JSON("Create task")
+func CreateTask(db *sql.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return c.JSON("")
+	}
 }
 
 /* Find all tasks */
-func FindTask(c *fiber.Ctx) error {
-	return c.JSON("Find all tasks")
+func FindTask(db *sql.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return c.JSON("Find all task")
+	}
 }
 
 /* Find tasks by id */
-func FindOneTask(c *fiber.Ctx) error {
-	return c.JSON("Find one task")
+func FindOneTask(db *sql.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return c.JSON("Find task by id")
+	}
 }
 
 /* Update task */
-func UpdateTask(c *fiber.Ctx) error {
-	return c.JSON("Update task")
+func UpdateTask(db *sql.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return c.JSON("Update Task")
+	}
 }
 
 /* Delete Task */
-func DeleteTask(c *fiber.Ctx) error {
-	return c.JSON("Delete task")
+func DeleteTask(db *sql.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return c.JSON("Delete Task")
+	}
 }
+
+/* (db *sql.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return c.JSON("")
+	}
+} */

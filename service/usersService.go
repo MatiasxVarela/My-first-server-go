@@ -167,9 +167,3 @@ func DeleteUser(db *sql.DB) fiber.Handler {
 
 	}
 }
-
-/* (db *sql.DB) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		return c.JSON("")
-	}
-} */
