@@ -2,6 +2,8 @@ package service
 
 import (
 	"database/sql"
+	"myFirstServerWithGo/models"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -9,7 +11,20 @@ import (
 /* Create new task */
 func CreateTask(db *sql.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		return c.JSON("")
+		task := new(models.Task)
+		if err := c.BodyParser(task); err != nil {
+			return err
+		}
+		userIdInt, _ := strconv.Atoi(task.UserId)
+
+		query := "INSERT INTO tasks (name, userid) VALUES ($1, $2);"
+		_, err := db.Exec(query, task.TaskName, userIdInt)
+		if err != nil {
+			return err
+		}
+		return c.JSON(fiber.Map{
+			"message": "Task Created",
+		})
 	}
 }
 
