@@ -67,7 +67,19 @@ func FindTask(db *sql.DB) fiber.Handler {
 /* Find tasks by id */
 func FindOneTask(db *sql.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		return c.JSON("Find task by id")
+		id := c.Params("id")
+		idInt, _ := strconv.Atoi(id)
+		var task models.Task
+
+		query := "SElECT * FROM tasks WHERE id=$1"
+		err := db.QueryRow(query, idInt).Scan(&task.Id, &task.TaskName, &task.UserId)
+		if err != nil {
+			return c.Status(404).JSON(fiber.Map{
+				"message": "Task not found",
+			})
+		}
+
+		return c.JSON(task)
 	}
 }
 
