@@ -93,7 +93,25 @@ func UpdateTask(db *sql.DB) fiber.Handler {
 /* Delete Task */
 func DeleteTask(db *sql.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		return c.JSON("Delete Task")
+		id := c.Params("id")
+		idInt, _ := strconv.Atoi(id)
+
+		query := "DELETE FROM tasks WHERE id=$1"
+		row, err := db.Exec(query, idInt)
+		if err != nil {
+			return err
+		}
+		affectedRows, _ := row.RowsAffected()
+		if affectedRows > 0 {
+			return c.JSON(fiber.Map{
+				"message": "Task Deleted",
+			})
+		} else {
+			return c.Status(404).JSON(fiber.Map{
+				"message": "Task not found",
+			})
+		}
+
 	}
 }
 
