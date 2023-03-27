@@ -15,6 +15,7 @@ func CreateTask(db *sql.DB) fiber.Handler {
 		if err := c.BodyParser(task); err != nil {
 			return err
 		}
+
 		userIdInt, _ := strconv.Atoi(task.UserId)
 
 		query := "INSERT INTO tasks (name, userid) VALUES ($1, $2);"
@@ -31,7 +32,35 @@ func CreateTask(db *sql.DB) fiber.Handler {
 /* Find all tasks */
 func FindTask(db *sql.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		return c.JSON("Find all task")
+		var task = []models.Task{}
+
+		query := "SElECT * FROM tasks"
+
+		rows, err := db.Query(query)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var responseTasks models.Task
+			if err := rows.Scan(&responseTasks.Id, &responseTasks.TaskName, &responseTasks.UserId); err != nil {
+				return err
+			}
+			task = append(task, responseTasks)
+		}
+
+		if err := rows.Err(); err != nil {
+			return err
+		}
+
+		if len(task) > 0 {
+			return c.JSON(task)
+		} else {
+			return c.Status(404).JSON(fiber.Map{
+				"message": "Tasks not found",
+			})
+		}
 	}
 }
 

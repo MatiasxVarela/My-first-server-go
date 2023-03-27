@@ -7,6 +7,7 @@ type Users struct {
 }
 
 type Task struct {
+	Id       string `json:"id"`
 	UserId   string `json:"userId"`
 	TaskName string `json:"taskName"`
 }
