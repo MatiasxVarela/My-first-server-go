@@ -101,6 +101,7 @@ func DeleteTask(db *sql.DB) fiber.Handler {
 		if err != nil {
 			return err
 		}
+
 		affectedRows, _ := row.RowsAffected()
 		if affectedRows > 0 {
 			return c.JSON(fiber.Map{

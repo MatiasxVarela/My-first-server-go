@@ -129,14 +129,22 @@ func UpdateUser(db *sql.DB) fiber.Handler {
 			return err
 		}
 
-		if usersReq.FirstName != "" {
-			users[0].FirstName = usersReq.FirstName
+		if usersReq.FirstName == "" {
+			usersReq.FirstName = users[0].FirstName
 		}
-		if usersReq.LastName != "" {
-			users[0].LastName = usersReq.LastName
+		if usersReq.LastName == "" {
+			usersReq.LastName = users[0].LastName
 		}
 
-		return c.JSON(users)
+		query := "UPDATE users SET firstname=$1, lastname=$2 WHERE id=$3"
+		_, err = db.Exec(query, usersReq.FirstName, usersReq.LastName, idInt)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(fiber.Map{
+			"message": "Updated User",
+		})
 
 	}
 }
